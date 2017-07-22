@@ -23,7 +23,7 @@ class ExDataLoader(object):
         """
         self._orig_sequence = ExDataLoader._load_data(self.file_path, self.num_rows)
 
-        self._orig_sequence = self._orig_sequence/10000
+        self._orig_sequence = self._orig_sequence
 
         sequence_start_max_index = len(self._orig_sequence) - self._window_size - self._prediction_delay
         # Shuffle rows
