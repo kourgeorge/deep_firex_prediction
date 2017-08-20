@@ -4,16 +4,15 @@ from ExDataLoader import ExDataLoader
 import tensorflow as tf
 from Config import Config
 from Network import Network
-from T2T_Network import T2T_Network
 
 import matplotlib.pyplot as plt
 
 
 def train():
     config = Config()
-    train_data_loader = ExDataLoader(config.train_data_path, config.window_size, config.forcast_horizon,
-                                     config.batch_size)
-    val_data_loader = ExDataLoader(config.val_data_path, config.window_size, config.forcast_horizon, config.batch_size)
+    train_data_loader = ExDataLoader(config.train_data_path, config.window_size, config.forecast_horizon,
+                                     config.batch_size, config.num_rows)
+    val_data_loader = ExDataLoader(config.val_data_path, config.window_size, config.forecast_horizon, config.batch_size, config.num_rows)
 
     network = Network(config)
 
@@ -23,7 +22,7 @@ def train():
 
 def predict():
     config = Config()
-    val_data_loader = ExDataLoader(config.val_data_path, config.window_size, config.forcast_horizon, config.batch_size,
+    val_data_loader = ExDataLoader(config.train_data_path, config.window_size, config.forecast_horizon, config.batch_size,
                                    3000)
 
     network = Network(config)
@@ -43,12 +42,12 @@ def predict():
             prediction = predictions[i]
             plt.plot(range(1, config.window_size + 1), before, 'r--')
             plt.hold(True)
-            plt.plot(range(config.window_size, config.window_size + config.forcast_horizon), actual, 'b--')
-            plt.plot(range(config.window_size, config.window_size + config.forcast_horizon), prediction, 'g^')
+            plt.plot(range(config.window_size, config.window_size + config.forecast_horizon), actual, 'b^-')
+            plt.plot(range(config.window_size, config.window_size + config.forecast_horizon), prediction, 'g^')
 
             plt.ylabel('Euro USD')
             plt.show()
 
 
-train()
-#predict()
+#train()
+predict()

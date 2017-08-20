@@ -5,27 +5,26 @@ import pandas as pd
 import math
 
 class ExDataLoader(object):
-    def __init__(self, data_file_path, window_size, prediction_delay, batch_size=None, num_rows=None):
+    def __init__(self, data_file_path, window_size, prediction_forecast, batch_size=None, num_rows=None):
 
         self.file_path = data_file_path
         self._window_size = window_size
-        self._prediction_delay = prediction_delay
+        self._prediction_forecast = prediction_forecast
         self._batch_size = batch_size
-
-        self._orig_sequence = None
         self._sequences = None
         self._labels = None
         self._batch_num = None
-        self.num_rows = 10000
+        self.num_rows = num_rows
+
+        self._orig_sequence = ExDataLoader._load_data(self.file_path, self.num_rows)
 
     def initialize(self, shuffle=True):
         """ Load and shuffle the data set and initialize the batches.
         """
-        self._orig_sequence = ExDataLoader._load_data(self.file_path, self.num_rows)
+        #This delay s to start the labels after a delay
+        delay = 0
 
-        self._orig_sequence = self._orig_sequence
-
-        sequence_start_max_index = len(self._orig_sequence) - self._window_size - self._prediction_delay
+        sequence_start_max_index = len(self._orig_sequence) - self._window_size - self._prediction_forecast- delay
         # Shuffle rows
         if shuffle:
             start_indices_perm = np.random.permutation(sequence_start_max_index)
@@ -36,7 +35,7 @@ class ExDataLoader(object):
         labels = []
         for i in start_indices_perm:
             sequences.append(self._orig_sequence[i:i + self._window_size, 0])
-            labels.append(self._orig_sequence[i + self._window_size: i + self._window_size + self._prediction_delay, 0])# This is the next tic
+            labels.append(self._orig_sequence[i + self._window_size + delay: i + self._window_size + delay + self._prediction_forecast, 0])
 
         self._sequences = sequences
         #self._labels = np.reshape(labels, newshape=(-1, self._prediction_delay))
@@ -91,7 +90,7 @@ class ExDataLoader(object):
 
     @staticmethod
     def _load_data(path, num_rows):
-        df = pd.read_csv(path, sep=',', header=None, index_col=False,
+        df = pd.read_csv(path, sep=',', header=None, index_col=False, skiprows = 1000,
                          names=['date', 'time', 'high', 'low', 'open', 'close', 'unk'], nrows=num_rows)
         #scaler = MinMaxScaler(feature_range=(0, 1))
         #return scaler.fit_transform(df.as_matrix(['open']))
